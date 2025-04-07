@@ -4,7 +4,6 @@ import { Card, ListItem, Avatar } from '@rneui/themed';
 import actividades from '../comun/actividades'; // Importar datos de actividades
 import { ACTIVIDADES } from '../comun/actividades';
 
-
 // Componente funcional Historia
 const Historia = () => {
     return (
