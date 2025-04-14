@@ -1,20 +1,22 @@
 import React, { Component } from 'react';
 import { Text, View, StyleSheet, ScrollView, FlatList } from 'react-native';
-import { Card, Icon } from '@rneui/themed';
+import { Card, Icon, Image } from '@rneui/themed';
 import { EXCURSIONES } from '../comun/excursiones';
 import { COMENTARIOS } from '../comun/comentarios';
+import { baseUrl } from '../comun/comun';
 
 function RenderExcursion(props) {
 
     const excursion = props.excursion;
 
     if (excursion != null) {
+
         return (
             <Card>
                 <View style={styles.imageContainer}>
                     <Text style={styles.title}>{excursion.nombre}</Text>
                 </View>
-                <Card.Image source={require('./imagenes/40Años.png')} />
+                <Card.Image source={{ uri: baseUrl + excursion.imagen }}></Card.Image>
                 <Card.Divider />
                 <Text style={{ margin: 20 }}>
                     {excursion.descripcion}
@@ -97,29 +99,79 @@ class DetalleExcursion extends Component {
             comentarios: COMENTARIOS,
             favoritos: []
         };
-
     }
 
     marcarFavorito(excursionId) {
         this.setState({
-            favoritos: this.state.favoritos.concat(excursionId
-            )
+            favoritos: this.state.favoritos.concat(excursionId)
         });
     }
 
     render() {
         const { excursionId } = this.props.route.params;
+        const excursion = this.state.excursiones[+excursionId];
+        const comentarios = this.state.comentarios.filter(
+            (comentario) => comentario.excursionId === excursionId
+        );
+    
+        const renderCommentItem = ({ item }) => {
+            let fecha = "Fecha no válida";
+            let hora = "";
+    
+            const diaLimpio = item.dia.replace(/\s+/g, '');
+    
+            try {
+                const fechaObj = new Date(diaLimpio);
+                if (!isNaN(fechaObj)) {
+                    fecha = fechaObj.toLocaleDateString('es-ES', {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                    });
+    
+                    hora = fechaObj.toLocaleTimeString('es-ES', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                    });
+                }
+            } catch (error) {
+                console.error("Error al procesar la fecha:", error);
+            }
+    
+            return (
+                <View style={{ margin: 10 }}>
+                    <Text style={{ fontSize: 14 }}>{item.comentario}</Text>
+                    <Text style={{ fontSize: 12 }}>{`-- ${item.autor}, ${fecha} ${hora ? `a las ${hora}` : ""}`}</Text>
+                </View>
+            );
+        };
+    
         return (
-            <ScrollView>
-                <RenderExcursion
-                    excursion={this.state.excursiones[+excursionId]}
-                    favorita={this.state.favoritos.some(el => el === excursionId)}
-                    onPress={() => this.marcarFavorito(excursionId)}
-                />
-                <RenderComentario
-                    comentarios={this.state.comentarios.filter((comentario) => comentario.excursionId === excursionId)}
-                />
-            </ScrollView>
+            <FlatList
+                data={[{ key: 'content' }]} // Datos ficticios para el FlatList principal
+                renderItem={() => null} // No renderizamos items normales
+                ListHeaderComponent={
+                    <RenderExcursion
+                        excursion={excursion}
+                        favorita={this.state.favoritos.some(el => el === excursionId)}
+                        onPress={() => this.marcarFavorito(excursionId)}
+                    />
+                }
+                ListFooterComponent={
+                    <Card>
+                        <Card.Title>Comentarios</Card.Title>
+                        <Card.Divider />
+                        <FlatList
+                            data={comentarios}
+                            renderItem={renderCommentItem}
+                            keyExtractor={(item) => item.id.toString()}
+                            scrollEnabled={false} // Importante: deshabilitar scroll interno
+                        />
+                    </Card>
+                }
+                contentContainerStyle={{ paddingBottom: 20 }}
+            />
         );
     }
 }
@@ -133,7 +185,7 @@ const styles = StyleSheet.create({
     },
     title: {
         position: 'absolute',
-        color: 'chocolate',
+        color: 'white',
         top: 10,
         fontSize: 35,
         fontWeight: 'bold',

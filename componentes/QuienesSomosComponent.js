@@ -2,11 +2,19 @@ import React, { Component } from 'react';
 import { Text, View, FlatList, SafeAreaView, ScrollView } from 'react-native';
 import { Card, ListItem, Avatar } from '@rneui/themed';
 import actividades from '../comun/actividades'; // Importar datos de actividades
-import { ACTIVIDADES } from '../comun/actividades';
+import { baseUrl } from '../comun/comun';
+import { connect } from 'react-redux';
+
+
+const mapStateToProps = state => {
+    return {
+        actividades: state.actividades
+    }
+}
 
 // Componente funcional Historia
 const Historia = () => {
-    return (
+    <View>
         <Card>
             <Card.Title>Un poquito de historia</Card.Title>
             <Card.Divider />
@@ -28,25 +36,29 @@ const Historia = () => {
                 Gracias!
             </Text>
         </Card>
-    );
+        <Card>
+            <Card.Title>"Actividades y recursos"</Card.Title>
+            <Card.Divider />
+        </Card>
+    </View>
 };
 
 
 // Componente de clase QuienesSomos
 class QuienesSomos extends Component {
 
-    constructor(props) {
+   /* constructor(props) {
         super(props);
         this.state = {
             actividades: ACTIVIDADES
         };
-    }
+    }*/
 
     render() {
 
         const renderActividadItem = ({ item }) => (
             <ListItem bottomDivider>
-                <Avatar source={require('./imagenes/40Años.png')} />
+                <Avatar source={{ uri: baseUrl + item.imagen }} />
                 <ListItem.Content>
                     <ListItem.Title>{item.nombre}</ListItem.Title>
                     <ListItem.Subtitle>{item.descripcion}</ListItem.Subtitle>
@@ -55,24 +67,14 @@ class QuienesSomos extends Component {
         );
 
         return (
-            <ScrollView>
-
-                <View>
-                    <Historia />
-
-                    <Card>
-                        <Card.Title>"Actividades y recursos"</Card.Title>
-                        <Card.Divider />
-                        <FlatList
-                            data={this.state.actividades}
-                            renderItem={renderActividadItem}
-                            keyExtractor={(item) => item.id.toString()}
-                        />
-                    </Card>
-                </View>
-            </ScrollView>
+            <FlatList
+                ListHeaderComponent={<Historia />}
+                data={this.props.actividades.actividades}
+                renderItem={renderActividadItem}
+                keyExtractor={(item) => item.id.toString()}
+            />
         );
     }
 }
 
-export default QuienesSomos;
+export default connect(mapStateToProps)(QuienesSomos);

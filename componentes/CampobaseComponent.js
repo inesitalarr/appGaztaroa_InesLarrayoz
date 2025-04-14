@@ -15,9 +15,26 @@ const Drawer = createDrawerNavigator();
 import { Icon } from '@rneui/themed';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NavigationContainer, DrawerActions } from '@react-navigation/native'; 
+import { colorGaztaroaClaro,baseUrl,colorGaztaroaOscuro } from '../comun/comun';
+import { connect } from 'react-redux'; 
+import { fetchExcursiones, fetchComentarios, fetchCabeceras, fetchActividades } from '../redux/ActionCreators'; 
 
-
-
+ 
+const mapStateToProps = state => { 
+  return { 
+    excursiones: state.excursiones, 
+    comentarios: state.comentarios, 
+    cabeceras: state.cabeceras, 
+    actividades: state.actividades 
+  } 
+} 
+ 
+const mapDispatchToProps = dispatch => ({ 
+  fetchExcursiones: () => dispatch(fetchExcursiones()), 
+  fetchComentarios: () => dispatch(fetchComentarios()), 
+  fetchCabeceras: () => dispatch(fetchCabeceras()), 
+  fetchActividades: () => dispatch(fetchActividades()), 
+}) 
 
 function CalendarioNavegador() {
   return (
@@ -26,7 +43,7 @@ function CalendarioNavegador() {
       headerMode="float"
       screenOptions={{
         headerTintColor: '#fff',
-        headerStyle: { backgroundColor: '#015afc' },
+        headerStyle: { backgroundColor: colorGaztaroaOscuro},
         headerTitleStyle: { color: '#fff' },
       }}
     >
@@ -59,7 +76,7 @@ function HomeNavegador() {
       screenOptions={{
         headerMode: 'screen',
         headerTintColor: '#fff',
-        headerStyle: { backgroundColor: '#015afc' },
+        headerStyle: { backgroundColor: colorGaztaroaOscuro },
         headerTitleStyle: { color: '#fff' },
       }}
     >
@@ -75,18 +92,26 @@ function HomeNavegador() {
 }
 
 
-function QuienesSomosNavegador() {
+function QuienesSomosNavegador({ navigation }) {
   return (
     <Stack.Navigator
       initialRouteName="QuienesSomos"
       screenOptions={{
+        headerShown: true,
         headerMode: 'screen',
         headerTintColor: '#fff',
-        headerStyle: { backgroundColor: '#015afc' },
+        headerStyle: { backgroundColor: colorGaztaroaOscuro },
         headerTitleStyle: { color: '#fff' },
-        headerLeft: () => (<Icon name="menu" size={28} color= 'white' onPress={ () => navigation.dispatch(DrawerActions.toggleDrawer()) }/>),
+        headerLeft: () => (
+          <Icon
+            name="menu"
+            size={28}
+            color="white"
+            onPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}
+            containerStyle={{ marginRight: 30 }} // Añade margen para separar el icono del título
+          />
+        ),
       }}
-      
     >
       <Stack.Screen
         name="QuienesSomos"
@@ -106,7 +131,7 @@ function ContactoNavegador() {
       screenOptions={{
         headerMode: 'screen',
         headerTintColor: '#fff',
-        headerStyle: { backgroundColor: '#015afc' },
+        headerStyle: { backgroundColor: colorGaztaroaOscuro },
         headerTitleStyle: { color: '#fff' },
       }}
     >
@@ -130,7 +155,7 @@ function DrawerNavegador() {
       screenOptions={{
         headerShown: false,
         drawerStyle: {
-          backgroundColor: '#c2d3da',
+          backgroundColor: colorGaztaroaClaro,
         },
       }}
     >
@@ -155,7 +180,8 @@ function DrawerNavegador() {
               size={24}
               color={tintColor}
             />
-          )
+          ),
+
         }}
       />
       <Drawer.Screen name="Calendario" component={CalendarioNavegador}
@@ -215,7 +241,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   drawerHeader: {
-    backgroundColor: '#015afc',
+    backgroundColor: colorGaztaroaOscuro,
     height: 100,
     alignItems: 'center',
     justifyContent: 'center',
@@ -238,6 +264,13 @@ const styles = StyleSheet.create({
 
 
 class Campobase extends Component {
+
+  componentDidMount() { 
+    this.props.fetchExcursiones(); 
+    this.props.fetchComentarios(); 
+    this.props.fetchCabeceras(); 
+    this.props.fetchActividades();
+  }
   render() {
     return (
       <NavigationContainer>
@@ -249,4 +282,4 @@ class Campobase extends Component {
   }
 }
 
-export default Campobase;
+export default connect(mapStateToProps, mapDispatchToProps)(Campobase); 
