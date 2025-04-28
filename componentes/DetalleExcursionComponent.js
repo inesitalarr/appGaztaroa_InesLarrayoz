@@ -4,6 +4,21 @@ import { Card, Icon, Image } from '@rneui/themed';
 import { EXCURSIONES } from '../comun/excursiones';
 import { COMENTARIOS } from '../comun/comentarios';
 import { baseUrl } from '../comun/comun';
+import { connect } from 'react-redux'; // Importamos connect para conectar con el estado global
+import { postFavorito } from '../redux/ActionCreators'; // Importamos la acción para marcar como favorito
+const mapStateToProps = state => {
+    return {
+        excursiones: state.excursiones,
+        comentarios: state.comentarios,
+        cabeceras: state.cabeceras,
+        actividades: state.actividades,
+        favoritos: state.favoritos, 
+    }
+}
+
+const mapDispatchToProps = dispatch => ({
+    postFavorito: (excursionId) => dispatch(postFavorito(excursionId))
+})
 
 function RenderExcursion(props) {
 
@@ -36,7 +51,8 @@ function RenderExcursion(props) {
         );
     }
     else {
-        return (<View></View>);
+        return (<View><Text>ENTRA AQUI</Text></View>);
+        
     }
 }
 
@@ -92,34 +108,28 @@ function RenderComentario(props) {
 }
 
 class DetalleExcursion extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            excursiones: EXCURSIONES,
-            comentarios: COMENTARIOS,
-            favoritos: []
-        };
-    }
+
 
     marcarFavorito(excursionId) {
-        this.setState({
-            favoritos: this.state.favoritos.concat(excursionId)
-        });
+        //this.setState({ favoritos: this.state.favoritos.concat(excursionId) });
+        this.props.postFavorito(excursionId);
     }
+
+
 
     render() {
         const { excursionId } = this.props.route.params;
-        const excursion = this.state.excursiones[+excursionId];
-        const comentarios = this.state.comentarios.filter(
+        const excursion = this.props.excursiones[+excursionId];
+        const comentarios = this.props.comentarios.comentarios.filter(
             (comentario) => comentario.excursionId === excursionId
         );
-    
+
         const renderCommentItem = ({ item }) => {
             let fecha = "Fecha no válida";
             let hora = "";
-    
+
             const diaLimpio = item.dia.replace(/\s+/g, '');
-    
+
             try {
                 const fechaObj = new Date(diaLimpio);
                 if (!isNaN(fechaObj)) {
@@ -129,7 +139,7 @@ class DetalleExcursion extends Component {
                         month: 'long',
                         day: 'numeric',
                     });
-    
+
                     hora = fechaObj.toLocaleTimeString('es-ES', {
                         hour: '2-digit',
                         minute: '2-digit',
@@ -138,7 +148,7 @@ class DetalleExcursion extends Component {
             } catch (error) {
                 console.error("Error al procesar la fecha:", error);
             }
-    
+
             return (
                 <View style={{ margin: 10 }}>
                     <Text style={{ fontSize: 14 }}>{item.comentario}</Text>
@@ -146,15 +156,15 @@ class DetalleExcursion extends Component {
                 </View>
             );
         };
-    
+
         return (
             <FlatList
                 data={[{ key: 'content' }]} // Datos ficticios para el FlatList principal
                 renderItem={() => null} // No renderizamos items normales
                 ListHeaderComponent={
                     <RenderExcursion
-                        excursion={excursion}
-                        favorita={this.state.favoritos.some(el => el === excursionId)}
+                        excursion={this.props.excursiones.excursiones[+excursionId]} 
+                        favorita={this.props.favoritos.favoritos.some(el => el === excursionId)}                            
                         onPress={() => this.marcarFavorito(excursionId)}
                     />
                 }
@@ -199,4 +209,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default DetalleExcursion;
+export default connect(mapStateToProps, mapDispatchToProps)(DetalleExcursion); 

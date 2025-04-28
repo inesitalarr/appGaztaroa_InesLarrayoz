@@ -4,7 +4,7 @@ import { Card, ListItem, Avatar } from '@rneui/themed';
 import actividades from '../comun/actividades'; // Importar datos de actividades
 import { baseUrl } from '../comun/comun';
 import { connect } from 'react-redux';
-
+import { IndicadorActividad } from './IndicadorActividadComponent';
 
 const mapStateToProps = state => {
     return {
@@ -47,12 +47,12 @@ const Historia = () => {
 // Componente de clase QuienesSomos
 class QuienesSomos extends Component {
 
-   /* constructor(props) {
-        super(props);
-        this.state = {
-            actividades: ACTIVIDADES
-        };
-    }*/
+    /* constructor(props) {
+         super(props);
+         this.state = {
+             actividades: ACTIVIDADES
+         };
+     }*/
 
     render() {
 
@@ -66,14 +66,30 @@ class QuienesSomos extends Component {
             </ListItem>
         );
 
-        return (
-            <FlatList
-                ListHeaderComponent={<Historia />}
-                data={this.props.actividades.actividades}
-                renderItem={renderActividadItem}
-                keyExtractor={(item) => item.id.toString()}
-            />
-        );
+        if (this.props.actividades.isLoading) {
+            return (
+                <IndicadorActividad />
+            );
+        }
+
+        else if (this.props.actividades.isLoading) {
+            return (
+                <View>
+                    <Text>{props.errMess}</Text>
+                </View>
+            );
+        }
+
+        else {
+            return (
+                <FlatList
+                    ListHeaderComponent={<Historia />}
+                    data={this.props.actividades.actividades}
+                    renderItem={renderActividadItem}
+                    keyExtractor={(item) => item.id.toString()}
+                />
+            );
+        }
     }
 }
 
