@@ -152,3 +152,25 @@ export const addFavorito = (excursionId) => ({
     type: ActionTypes.ADD_FAVORITO,
     payload: excursionId
 }); 
+
+// Acción para añadir un comentario
+export const addComentario = (comentario) => ({
+    type: ActionTypes.ADD_COMENTARIO,
+    payload: comentario
+});
+
+// Acción Thunk para simular el envío del comentario
+export const postComentario = (excursionId, valoracion, autor, comentario) => (dispatch) => {
+    const dia = new Date().toISOString(); // Generar fecha actual
+    const nuevoComentario = {
+        excursionId,
+        valoracion,
+        autor,
+        comentario,
+        dia
+    };
+
+    setTimeout(() => {
+        dispatch(addComentario(nuevoComentario)); // Despachar la acción tras 2 segundos
+    }, 2000);
+};
